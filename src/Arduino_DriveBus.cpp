@@ -199,29 +199,3 @@ bool Arduino_IIC_DriveBus::IIC_ReadC8D8(uint8_t device_address, uint8_t c, uint8
 
     return true;
 }
-
-Arduino_IIS_DriveBus::Arduino_IIS_DriveBus() {}
-
-bool Arduino_IIS_DriveBus::IIS_Read(char *data, size_t length)
-{
-    size_t temp_buf = Read(data, length);
-
-    if (temp_buf != length)
-    {
-        log_e("->Read(data, length) fail");
-        return false;
-    }
-    return true;
-}
-
-bool Arduino_IIS_DriveBus::IIS_Write(char *data, size_t length)
-{
-    size_t temp_buf = Write(data, length);
-
-    if (temp_buf != length)
-    {
-        log_e("->Write(data, length) fail");
-        return false;
-    }
-    return true;
-}

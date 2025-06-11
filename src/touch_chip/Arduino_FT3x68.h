@@ -1,4 +1,13 @@
 /*
+ * @Description: None
+ * @version: V1.0.0
+ * @Author: None
+ * @Date: 2024-03-12 09:24:12
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-12 09:44:20
+ * @License: GPL 3.0
+ */
+/*
  * @Description(CN):
  *      基于Arduino_DriveBus库的FT3x68芯片库
  *      编写了主要功能 部分功能未列出
@@ -12,17 +21,23 @@
  *        enum Device_Mode
  *        {
  *            // 触摸功耗模式
- *            TOUCH_POWER_ACTIVE,
- *            TOUCH_POWER_MONITOR,
- *            TOUCH_POWER_STANDBY,
- *            TOUCH_POWER_HIBERNATE,
+ *            TOUCH_POWER_ACTIVE,    // 激活模式
+ *            TOUCH_POWER_MONITOR,   // 监听触发模式
+ *            TOUCH_POWER_STANDBY,   // 待机模式
+ *            TOUCH_POWER_HIBERNATE, // 休眠模式
  *        };
  *        enum Device
  *        {
  *            TOUCH_POWER_MODE,             // 触摸芯片工作功耗模式
- *            TOUCH_PROXIMITY_SENSING_MODE, // 进距离感应模式
+ *            TOUCH_PROXIMITY_SENSING_MODE, // 近距离感应模式
  *            TOUCH_GESTUREID_MODE,         // 特殊手势模式
+ *
+ *            TOUCH_AUTOMATICALLY_MONITOR_MODE,         // 自动进入Monitor模式
  *        };
+ *        enum Device_Value
+ *        {
+ *            TOUCH_AUTOMATICALLY_MONITOR_TIME, // 自动进入Monitor模式的时间
+ *        };                                            
  *        enum Status_Information
  *        {
  *            TOUCH_GESTURE_ID, // 触摸手势ID
@@ -56,20 +71,22 @@
 #define FT3168_DEVICE_ADDRESS 0x38
 #define FT3268_DEVICE_ADDRESS 0x38
 
-#define FT3x68_RD_DEVICE_GESTUREID 0xD3                 // GestureID
-#define FT3x68_RD_DEVICE_FINGERNUM 0x02                 // FingerNum
-#define FT3x68_RD_DEVICE_X1POSH 0x03                    // X1posH
-#define FT3x68_RD_DEVICE_X1POSL 0x04                    // X1posL
-#define FT3x68_RD_DEVICE_Y1POSH 0x05                    // Y1posH
-#define FT3x68_RD_DEVICE_Y1POSL 0x06                    // Y1posL
-#define FT3x68_RD_DEVICE_X2POSH 0x09                    // X2posH
-#define FT3x68_RD_DEVICE_X2POSL 0x0A                    // X2posL
-#define FT3x68_RD_DEVICE_Y2POSH 0x0B                    // Y2posH
-#define FT3x68_RD_DEVICE_Y2POSL 0x0C                    // Y2posL
-#define FT3x68_RD_WR_DEVICE_GESTUREID_MODE 0xD0         // GestureID
-#define FT3x68_RD_WR_DEVICE_POWER_MODE 0xA5             // Power Mode
-#define FT3x68_RD_WR_DEVICE_PROXIMITY_SENSING_MODE 0xB0 // Proximity Sensing Mode
-#define FT3x68_RD_DEVICE_ID 0xA0                        // Device ID Register (0x00:FT6456 0x04:FT3268 0x01:FT3067 0x05:FT3368 0x02:FT3068 0x03:FT3168)
+#define FT3x68_RD_DEVICE_GESTUREID 0xD3                     // GestureID
+#define FT3x68_RD_DEVICE_FINGERNUM 0x02                     // FingerNum
+#define FT3x68_RD_DEVICE_X1POSH 0x03                        // X1posH
+#define FT3x68_RD_DEVICE_X1POSL 0x04                        // X1posL
+#define FT3x68_RD_DEVICE_Y1POSH 0x05                        // Y1posH
+#define FT3x68_RD_DEVICE_Y1POSL 0x06                        // Y1posL
+#define FT3x68_RD_DEVICE_X2POSH 0x09                        // X2posH
+#define FT3x68_RD_DEVICE_X2POSL 0x0A                        // X2posL
+#define FT3x68_RD_DEVICE_Y2POSH 0x0B                        // Y2posH
+#define FT3x68_RD_DEVICE_Y2POSL 0x0C                        // Y2posL
+#define FT3x68_RD_WR_DEVICE_AUTOMATICALLY_MONITOR_MODE 0x86 // Monitor mode switch
+#define FT3x68_RD_WR_DEVICE_AUTOMATICALLY_MONITOR_MODE_TIME 0x87 // Monitor mode time
+#define FT3x68_RD_WR_DEVICE_GESTUREID_MODE 0xD0             // GestureID
+#define FT3x68_RD_WR_DEVICE_POWER_MODE 0xA5                 // Power Mode
+#define FT3x68_RD_WR_DEVICE_PROXIMITY_SENSING_MODE 0xB0     // Proximity Sensing Mode
+#define FT3x68_RD_DEVICE_ID 0xA0                            // Device ID Register (0x00:FT6456 0x04:FT3268 0x01:FT3067 0x05:FT3368 0x02:FT3068 0x03:FT3168)
 
 static const uint8_t FT3x68_Initialization_BufferOperations[] = {
     BO_BEGIN_TRANSMISSION,
@@ -88,6 +105,7 @@ public:
     bool begin(int32_t speed = DRIVEBUS_DEFAULT_VALUE) override;
     int32_t IIC_Read_Device_ID(void) override;
     bool IIC_Write_Device_State(uint32_t device, uint8_t state) override;
+    bool IIC_Write_Device_Value(uint32_t device, uint32_t value) override;
 
     String IIC_Read_Device_State(uint32_t information) override;
     double IIC_Read_Device_Value(uint32_t information) override;

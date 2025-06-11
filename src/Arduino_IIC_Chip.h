@@ -1,4 +1,13 @@
 /*
+ * @Description: None
+ * @version: V1.0.0
+ * @Author: None
+ * @Date: 2024-03-12 09:24:12
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-25 11:11:45
+ * @License: GPL 3.0
+ */
+/*
  * @Description(CN):
  *      属于Arduino_IIC的一个分支 用于存储IIC相关的Power芯片数据
  *
@@ -8,8 +17,8 @@
  * @version: V1.1.5
  * @Author: Xk_w
  * @Date: 2023-11-16 16:58:05
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:45:20
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-11 14:38:57
  * @License: GPL 3.0
  */
 #pragma once
@@ -121,10 +130,10 @@ public:
         TOUCH_DEVICE_INTERRUPT_ONCEWLP,  //  长按手势只发出一个低脉冲信号
 
         // 触摸功耗模式
-        TOUCH_POWER_ACTIVE,
-        TOUCH_POWER_MONITOR,
-        TOUCH_POWER_STANDBY,
-        TOUCH_POWER_HIBERNATE,
+        TOUCH_POWER_ACTIVE,    // 激活模式
+        TOUCH_POWER_MONITOR,   // 监听触发模式
+        TOUCH_POWER_STANDBY,   // 待机模式
+        TOUCH_POWER_HIBERNATE, // 休眠模式
     };
     enum Device
     {
@@ -132,11 +141,14 @@ public:
         TOUCH_DEVICE_SLEEP_MODE,     // 休眠模式
 
         TOUCH_POWER_MODE,             // 触摸芯片工作功耗模式
-        TOUCH_PROXIMITY_SENSING_MODE, // 进距离感应模式
+        TOUCH_PROXIMITY_SENSING_MODE, // 近距离感应模式
         TOUCH_GESTUREID_MODE,         // 特殊手势模式
+
+        TOUCH_AUTOMATICALLY_MONITOR_MODE, // 自动进入Monitor模式
     };
     enum Device_Value
     {
+        TOUCH_AUTOMATICALLY_MONITOR_TIME, // 自动进入Monitor模式的时间
     };
     enum Status_Information
     {
@@ -172,21 +184,28 @@ class Arduino_IIC_IMU
 public:
     enum Device_State
     {
+        IMU_DEVICE_ON,  // 设备功能关
+        IMU_DEVICE_OFF, // 设备功能开
     };
     enum Device
     {
         IMU_ACCELERATION_POWER_MODE, // 加速度传感器电源功耗模式
         IMU_GYROSCOPE_POWER_MODE,    // 陀螺仪传感器电源功耗模式
 
+        IMU_GYROSCOPE_SLEEP_MODE, // 陀螺仪传感器睡眠模式
+
         IMU_FIFO_POWER_MODE, // 传感器FIFO的电源功耗模式
         IMU_FIFO_WORK_MODE,  // 传感器FIFO的工作模式
 
         IMU_FIFO_DATA_TYPE, // 传感器FIFO选择需要获取的数据类型
+
+        IMU_PEDOMETER_MODE,  // 传感器计步器模式
+        IMU_PEDOMETER_RESET, // 复位传感器计步器的值
     };
     enum Device_Mode
     {
         // 传感器设备功耗模式
-        IMU_DEVICE_OFF,              // 下电模式
+        IMU_DEVICE_OFF_POWER,        // 下电模式
         IMU_DEVICE_ULTRA_LOW_POWER,  // 超低功耗模式
         IMU_DEVICE_LOW_POWER,        // 低功耗模式
         IMU_DEVICE_NORMAL_POWER,     // 正常模式
@@ -241,5 +260,7 @@ public:
 
         IMU_FIFO_DATA_PATTERN, // 用于判断下次读取时读取哪个传感器哪个轴上的数据
         IMU_FIFO_DATA,         // FIFO 上的数据 原始值
+
+        IMU_PEDOMETER_VALUE, // 传感器计步器的值
     };
 };

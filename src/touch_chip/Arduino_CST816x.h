@@ -45,7 +45,7 @@
  * @Author: Xk_w
  * @Date: 2023-11-25 09:14:23
  * @LastEditors: Xk_w
- * @LastEditTime: 2023-12-08 14:20:09
+ * @LastEditTime: 2024-03-19 16:37:50
  * @License: GPL 3.0
  */
 #pragma once
@@ -55,20 +55,30 @@
 #define CST816D_DEVICE_ADDRESS 0x15
 #define CST816T_DEVICE_ADDRESS 0x15
 
-#define CST816x_RD_DEVICE_GESTUREID 0x01      // GestureID
-#define CST816x_RD_DEVICE_FINGERNUM 0x02      // FingerNum
-#define CST816x_RD_DEVICE_XPOSH 0x03          // XposH
-#define CST816x_RD_DEVICE_XPOSL 0x04          // XposL
-#define CST816x_RD_DEVICE_YPOSH 0x05          // YposH
-#define CST816x_RD_DEVICE_YPOSL 0x06          // YposL
-#define CST816x_WR_DEVICE_SLEEPMODE 0xE5      // SleepMode
-#define CST816x_WR_DEVICE_INTERRUPT_MODE 0xFA // Interrupt Mode
-#define CST816x_RD_DEVICE_ID 0xA7             // Device ID Register
+#define CST816x_RD_DEVICE_GESTUREID 0x01       // GestureID
+#define CST816x_RD_DEVICE_FINGERNUM 0x02       // FingerNum
+#define CST816x_RD_DEVICE_XPOSH 0x03           // XposH
+#define CST816x_RD_DEVICE_XPOSL 0x04           // XposL
+#define CST816x_RD_DEVICE_YPOSH 0x05           // YposH
+#define CST816x_RD_DEVICE_YPOSL 0x06           // YposL
+#define CST816x_WR_DEVICE_SLEEPMODE 0xE5       // SleepMode
+#define CST816x_WR_DEVICE_AUTO_SLEEP_TIME 0xF9 // Auto Sleep Time
+#define CST816x_WR_DEVICE_INTERRUPT_MODE 0xFA  // Interrupt Mode
+#define CST816x_WR_DEVICE_AUTO_SLEEP_MODE 0xFE // Auto Sleep Mode
+#define CST816x_RD_DEVICE_ID 0xA7              // Device ID Register
 
 static const uint8_t CST816x_Initialization_BufferOperations[] = {
     BO_BEGIN_TRANSMISSION,
     BO_WRITE_C8_D8, CST816x_WR_DEVICE_INTERRUPT_MODE, 0B00010000, // 中断配置为检测到手势时发出低脉冲
     BO_END_TRANSMISSION,
+
+    // BO_BEGIN_TRANSMISSION,
+    // BO_WRITE_C8_D8, CST816x_WR_DEVICE_AUTO_SLEEP_MODE, 0B00000001, // 自动进入低功耗模式
+    // BO_END_TRANSMISSION,
+
+    // BO_BEGIN_TRANSMISSION,
+    // BO_WRITE_C8_D8, CST816x_WR_DEVICE_AUTO_SLEEP_TIME, 0B00000010, // 2s自动进入低功耗
+    // BO_END_TRANSMISSION,
 
     BO_DELAY, 20};
 

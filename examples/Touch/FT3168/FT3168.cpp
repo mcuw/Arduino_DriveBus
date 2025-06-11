@@ -15,11 +15,11 @@
  *    2. The Arduino_DriveBus library uses enumerations to register commands and values for chip operations.
  *  The specific executable commands are explained in the chip file under @Description.
  *
- * @version: V1.0.0
+ * @version: V1.1.8
  * @Author: Xk_w
  * @Date: 2023-08-25 17:09:20
  * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:24:48
+ * @LastEditTime: 2024-03-12 09:24:48
  * @License: GPL 3.0
  */
 #include "Arduino_DriveBus_Library.h"
@@ -44,9 +44,6 @@ void setup()
     Serial.begin(115200);
     Serial.println("Ciallo");
 
-    pinMode(LCD_EN, OUTPUT);
-    digitalWrite(LCD_EN, HIGH);
-
     while (FT3168->begin() == false)
     {
         Serial.println("FT3168 initialization fail");
@@ -56,16 +53,16 @@ void setup()
 
     // 触摸芯片功耗模式选择
     // 激活模式
-    // FT3168->IIC_Write_Device_Value(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
+    // FT3168->IIC_Write_Device_State(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
     //                                FT3168->Arduino_IIC_Touch::Device_Mode::TOUCH_POWER_ACTIVE);
     // 监听触发模式
-    // FT3168->IIC_Write_Device_Value(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
-    //                                FT3168->Arduino_IIC_Touch::Device_Mode::TOUCH_POWER_MONITOR);
+    FT3168->IIC_Write_Device_State(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
+                                   FT3168->Arduino_IIC_Touch::Device_Mode::TOUCH_POWER_MONITOR);
     // 待机模式
-    // FT3168->IIC_Write_Device_Value(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
+    // FT3168->IIC_Write_Device_State(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
     //                                FT3168->Arduino_IIC_Touch::Device_Mode::TOUCH_POWER_STANDBY);
     // 休眠模式
-    // FT3168->IIC_Write_Device_Value(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
+    // FT3168->IIC_Write_Device_State(FT3168->Arduino_IIC_Touch::Device::TOUCH_POWER_MODE,
     //                                FT3168->Arduino_IIC_Touch::Device_Mode::TOUCH_POWER_HIBERNATE);
 
     // 开启特殊手势模式
@@ -74,6 +71,13 @@ void setup()
     // 开启近距离感应模式
     // FT3168->IIC_Write_Device_State(FT3168->Arduino_IIC_Touch::Device::TOUCH_PROXIMITY_SENSING_MODE,
     //                                FT3168->Arduino_IIC_Touch::Device_State::TOUCH_DEVICE_ON);
+
+    // 触摸芯片是否自动进入Monitor模式
+    // FT3168->IIC_Write_Device_State(FT3168->Arduino_IIC_Touch::Device::TOUCH_AUTOMATICALLY_MONITOR_MODE,
+    //                                FT3168->Arduino_IIC_Touch::Device_State::TOUCH_DEVICE_ON);
+    // 设定触摸芯片自动进入Monitor模式的时间为10秒
+    // FT3168->IIC_Write_Device_Value(FT3168->Arduino_IIC_Touch::Device_Value::TOUCH_AUTOMATICALLY_MONITOR_TIME,
+    //                                10);
 
     Serial.printf("ID: %#X \n\n", (int32_t)FT3168->IIC_Read_Device_ID());
     delay(1000);
@@ -93,18 +97,18 @@ void loop()
                       (FT3168->IIC_Read_Device_State(FT3168->Arduino_IIC_Touch::Status_Information::TOUCH_GESTURE_ID)).c_str());
 
         Serial.printf("Fingers Number:%d\n",
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH_FINGER_NUMBER));
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH_FINGER_NUMBER));
 
         Serial.printf("Touch X:%d Y:%d\n",
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH_COORDINATE_X),
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH_COORDINATE_Y));
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH_COORDINATE_X),
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH_COORDINATE_Y));
 
         Serial.printf("\nTouch X1:%d Y1:%d\n",
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH1_COORDINATE_X),
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH1_COORDINATE_Y));
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH1_COORDINATE_X),
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH1_COORDINATE_Y));
         Serial.printf("Touch X2:%d Y2:%d\n",
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH2_COORDINATE_X),
-                      FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH2_COORDINATE_Y));
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH2_COORDINATE_X),
+                      (int32_t)FT3168->IIC_Read_Device_Value(FT3168->Arduino_IIC_Touch::Value_Information::TOUCH2_COORDINATE_Y));
     }
 
     delay(500);

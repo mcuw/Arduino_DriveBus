@@ -8,8 +8,8 @@
  * @version: V1.0.0
  * @Author: Xk_w
  * @Date: 2023-12-20 16:24:06
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:19:22
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-15 16:51:03
  * @License: GPL 3.0
  */
 #include "Arduino_DriveBus_Library.h"
@@ -41,15 +41,16 @@ void loop()
 {
     if (MSM261->IIS_Read_Data(IIS_Read_Buff, 100) == true)
     {
-        // 输出右声道数据
-        // Serial.printf("Right: %d\n", (int16_t)(IIS_Read_Buff[2] | IIS_Read_Buff[3] << 8));
-
         // 输出左声道数据
-        // Serial.printf("Left: %d\n", (int16_t)(IIS_Read_Buff[0] | IIS_Read_Buff[1] << 8));
+        // Serial.printf("Left: %d\n",((int16_t)IIS_Read_Buff[0] | (int16_t)IIS_Read_Buff[1] << 8));
 
-        Serial.print((int16_t)(IIS_Read_Buff[2] | IIS_Read_Buff[3] << 8)); // Arduino
+        // 输出右声道数据
+        // Serial.printf("Right: %d\n",((int16_t)IIS_Read_Buff[2] | (int16_t)IIS_Read_Buff[3] << 8));
+
+        // Arduino
+        Serial.println(((int16_t)IIS_Read_Buff[0] | (int16_t)IIS_Read_Buff[1] << 8));
         Serial.print(",");
-        Serial.println((int16_t)(IIS_Read_Buff[0] | IIS_Read_Buff[1] << 8));
+        Serial.print(((int16_t)IIS_Read_Buff[2] | (int16_t)IIS_Read_Buff[3] << 8));
     }
     else
     {

@@ -9,8 +9,8 @@
  * @version: V1.1.5
  * @Author: Xk_w
  * @Date: 2023-11-16 16:58:05
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:46:12
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-13 12:10:35
  * @License: GPL 3.0
  */
 #pragma once
@@ -38,7 +38,7 @@ public:
     virtual double IIC_Read_Device_Value(uint32_t information);
 
     // Flag
-    int8_t IIC_Interrupt_Flag = DRIVEBUS_DEFAULT_VALUE;
+    volatile int8_t IIC_Interrupt_Flag = DRIVEBUS_DEFAULT_VALUE; // 放中断里的参数必须加volatile否则值容易被清除
 
 protected:
     virtual bool IIC_Initialization(void) = 0;

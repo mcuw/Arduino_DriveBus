@@ -3,8 +3,8 @@
  * @version: V1.1.5
  * @Author: Xk_w
  * @Date: 2023-11-16 16:58:05
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:50:40
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-13 11:33:10
  * @License: GPL 3.0
  */
 #include "Arduino_IIC.h"

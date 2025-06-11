@@ -11,8 +11,8 @@
  * @version: V1.1.5
  * @Author: Xk_w
  * @Date: 2023-11-16 15:49:20
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:43:14
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-06-21 14:18:16
  * @License: GPL 3.0
  */
 #pragma once
@@ -27,6 +27,7 @@
 
 #include "./power_chip/Arduino_ETA4662.h"
 #include "./power_chip/Arduino_SY6970.h"
+#include "./power_chip/Arduino_SGM41562.h"
 
 #include "./touch_chip/Arduino_CST816x.h"
 #include "./touch_chip/Arduino_CST2xxSE.h"

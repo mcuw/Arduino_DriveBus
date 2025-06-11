@@ -1,8 +1,8 @@
 /*
  * @Description(CN):
- *      基于Arduino_DriveBus库的ETA4662芯片库
+ *      基于Arduino_DriveBus库的SGM41562芯片库
  *      编写了主要功能 部分功能未列出
- *      以下是操作ETA4662的相关枚举（控制ETA4662芯片时请调用以下枚举的参数）：
+ *      以下是操作SGM41562的相关枚举（控制SGM41562芯片时请调用以下枚举的参数）：
  *
  *      enum Device_State
  *      {
@@ -62,8 +62,8 @@
  *      };
  *
  *      注意事项：
- *      1. 当启动ETA4662的看门狗时，看门狗的定时器到达指定值后将断开电源重新连接，
- *  与ETA4662通信的MCU将失去电源重启
+ *      1. 当启动SGM41562的看门狗时，看门狗的定时器到达指定值后将断开电源重新连接，
+ *  与SGM41562通信的MCU将失去电源重启
  *
  * @version: V1.0.0
  * @Author: Xk_w
@@ -76,60 +76,60 @@
 
 #include "../Arduino_IIC.h"
 
-#define ETA4662_DEVICE_ADDRESS 0x07
+#define SGM41562_DEVICE_ADDRESS 0x03
 
-#define ETA4662_RD_WR_INPUT_SOURCE_CONTROL 0x00                    // Input Source Control Register
-#define ETA4662_RD_WR_POWER_ON_CONFIGURATION 0x01                  // Power on configuration register
-#define ETA4662_RD_WR_CHARGE_CURRENT_CONTROL 0x02                  // Charge Current Control Register
-#define ETA4662_RD_WR_DISCHARGE_TERMINATION_CURRENT 0x03           // Dis-charge/ Termination Current 1001 0001
-#define ETA4662_RD_WR_CHARGE_VOLTAGE_CONTROL 0x04                  // Charge Voltage Control Register
-#define ETA4662_RD_WR_CHARGE_TERMINATION_TIMER_CONTROL 0x05        // Charge Termination/Timer Control Register 0111 1010
-#define ETA4662_RD_WR_MISCELLANEOUS_OPERATION_CONTROL 0x06         // Miscellaneous Operation Control Register 1100 0000
-#define ETA4662_RD_WR_SYSTEM_VOLTAGE_REGULATION 0x07               // System Voltage Regulation Register
-#define ETA4662_RD_SYSTEM_STATUS 0x08                              // System Status Register
-#define ETA4662_RD_FAULT 0x09                                      // Fault Register
-#define ETA4662_RD_WR_IIC_ADDRESS_MISCELLANEOUS_CONFIGURATION 0x0A // IIC Address and Miscellaneous Configuration Register
-#define ETA4662_RD_DEVICE_ID 0x0B                                  // Device ID Register
+#define SGM41562_RD_WR_INPUT_SOURCE_CONTROL 0x00                    // Input Source Control Register
+#define SGM41562_RD_WR_POWER_ON_CONFIGURATION 0x01                  // Power on configuration register
+#define SGM41562_RD_WR_CHARGE_CURRENT_CONTROL 0x02                  // Charge Current Control Register
+#define SGM41562_RD_WR_DISCHARGE_TERMINATION_CURRENT 0x03           // Dis-charge/ Termination Current 1001 0001
+#define SGM41562_RD_WR_CHARGE_VOLTAGE_CONTROL 0x04                  // Charge Voltage Control Register
+#define SGM41562_RD_WR_CHARGE_TERMINATION_TIMER_CONTROL 0x05        // Charge Termination/Timer Control Register 0111 1010
+#define SGM41562_RD_WR_MISCELLANEOUS_OPERATION_CONTROL 0x06         // Miscellaneous Operation Control Register 1100 0000
+#define SGM41562_RD_WR_SYSTEM_VOLTAGE_REGULATION 0x07               // System Voltage Regulation Register
+#define SGM41562_RD_SYSTEM_STATUS 0x08                              // System Status Register
+#define SGM41562_RD_FAULT 0x09                                      // Fault Register
+#define SGM41562_RD_WR_IIC_ADDRESS_MISCELLANEOUS_CONFIGURATION 0x0A // IIC Address and Miscellaneous Configuration Register
+#define SGM41562_RD_DEVICE_ID 0x0B                                  // Device ID Register
 
-static const uint8_t ETA4662_Initialization_BufferOperations[] = {
+static const uint8_t SGM41562_Initialization_BufferOperations[] = {
 
     // BO_BEGIN_TRANSMISSION,
-    // BO_WRITE_C8_D8, ETA4662_RD_WR_CHARGE_CURRENT_CONTROL, 0B11001111, // Reset Register
+    // BO_WRITE_C8_D8, SGM41562_RD_WR_CHARGE_CURRENT_CONTROL, 0B11001111, // Reset Register
     // BO_END_TRANSMISSION,
 
     // BO_DELAY, 100,
 
     BO_BEGIN_TRANSMISSION,
-    BO_WRITE_C8_D8, ETA4662_RD_WR_MISCELLANEOUS_OPERATION_CONTROL, 0B01000000, // 关闭NTC
+    BO_WRITE_C8_D8, SGM41562_RD_WR_MISCELLANEOUS_OPERATION_CONTROL, 0B01000000, // 关闭NTC
     BO_END_TRANSMISSION,
 
     BO_BEGIN_TRANSMISSION,
-    BO_WRITE_C8_D8, ETA4662_RD_WR_IIC_ADDRESS_MISCELLANEOUS_CONFIGURATION, 0B11100001, // 充电电流权重限制
+    BO_WRITE_C8_D8, SGM41562_RD_WR_IIC_ADDRESS_MISCELLANEOUS_CONFIGURATION, 0B01100001, //充电电流权重限制
     BO_END_TRANSMISSION,
 
     BO_BEGIN_TRANSMISSION,
-    BO_WRITE_C8_D8, ETA4662_RD_WR_CHARGE_TERMINATION_TIMER_CONTROL, 0B00011010, // 关闭看门狗功能
+    BO_WRITE_C8_D8, SGM41562_RD_WR_CHARGE_TERMINATION_TIMER_CONTROL, 0B00011010, // 关闭看门狗功能
     BO_END_TRANSMISSION,
 
     BO_BEGIN_TRANSMISSION,
-    BO_WRITE_C8_D8, ETA4662_RD_WR_POWER_ON_CONFIGURATION, 0B10101101, // 开启电池充电功能
+    BO_WRITE_C8_D8, SGM41562_RD_WR_POWER_ON_CONFIGURATION, 0B10101101, // 开启电池充电功能
     BO_END_TRANSMISSION,
 
     BO_BEGIN_TRANSMISSION,
-    BO_WRITE_C8_D8, ETA4662_RD_SYSTEM_STATUS, 0B01100000, // 关闭输入电流限制
+    BO_WRITE_C8_D8, SGM41562_RD_SYSTEM_STATUS, 0B01100000, // 关闭输入电流限制
     BO_END_TRANSMISSION,
 
     // BO_BEGIN_TRANSMISSION,
-    // BO_WRITE_C8_D8, ETA4662_RD_WR_POWER_ON_CONFIGURATION, 0B10100101, // 关闭电池充电功能
+    // BO_WRITE_C8_D8, SGM41562_RD_WR_POWER_ON_CONFIGURATION, 0B10100101, // 关闭电池充电功能
     // BO_END_TRANSMISSION,
 
     BO_DELAY, 50};
 
-class Arduino_ETA4662 : public Arduino_IIC
+class Arduino_SGM41562 : public Arduino_IIC
 {
 public:
-    Arduino_ETA4662(std::shared_ptr<Arduino_IIC_DriveBus> bus, uint8_t device_address,
-                    int8_t rst = DRIVEBUS_DEFAULT_VALUE, int8_t iqr = DRIVEBUS_DEFAULT_VALUE);
+    Arduino_SGM41562(std::shared_ptr<Arduino_IIC_DriveBus> bus, uint8_t device_address,
+                     int8_t rst = DRIVEBUS_DEFAULT_VALUE, int8_t iqr = DRIVEBUS_DEFAULT_VALUE);
 
     bool begin(int32_t speed = DRIVEBUS_DEFAULT_VALUE) override;
     int32_t IIC_Read_Device_ID(void) override;

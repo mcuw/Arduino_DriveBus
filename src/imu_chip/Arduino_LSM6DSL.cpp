@@ -3,8 +3,8 @@
  * @version: V1.0.0
  * @Author: Xk_w
  * @Date: 2023-11-16 15:42:22
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 14:29:32
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-25 11:13:35
  * @License: GPL 3.0
  */
 #include "Arduino_LSM6DSL.h"
@@ -59,7 +59,7 @@ bool Arduino_LSM6DSL::IIC_Write_Device_State(uint32_t device, uint8_t state)
     case Arduino_IIC_IMU::Device::IMU_ACCELERATION_POWER_MODE:
         switch (state)
         {
-        case Arduino_IIC_IMU::Device_Mode::IMU_DEVICE_OFF:
+        case Arduino_IIC_IMU::Device_Mode::IMU_DEVICE_OFF_POWER:
             if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL1_XL, &temp_buf) == true)
             {
                 temp_buf &= 0B00001111;
@@ -178,7 +178,7 @@ bool Arduino_LSM6DSL::IIC_Write_Device_State(uint32_t device, uint8_t state)
     case Arduino_IIC_IMU::Device::IMU_GYROSCOPE_POWER_MODE:
         switch (state)
         {
-        case Arduino_IIC_IMU::Device_Mode::IMU_DEVICE_OFF:
+        case Arduino_IIC_IMU::Device_Mode::IMU_DEVICE_OFF_POWER:
             if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL2_G, &temp_buf) == true)
             {
                 temp_buf &= 0B00001111;
@@ -294,10 +294,41 @@ bool Arduino_LSM6DSL::IIC_Write_Device_State(uint32_t device, uint8_t state)
             break;
         }
         break;
+    case Arduino_IIC_IMU::Device::IMU_GYROSCOPE_SLEEP_MODE:
+        switch (state)
+        {
+        case Arduino_IIC_IMU::Device_State::IMU_DEVICE_ON:
+            if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL4_C, &temp_buf) == true)
+            {
+                temp_buf &= 0B10111111;
+                temp_buf = temp_buf | (0B00000001 << 6);
+
+                if (_bus->IIC_WriteC8D8(_device_address, LSM6DSL_RD_WR_CTRL4_C, temp_buf) == true)
+                {
+                    return true;
+                }
+            }
+            break;
+        case Arduino_IIC_IMU::Device_State::IMU_DEVICE_OFF:
+            if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL4_C, &temp_buf) == true)
+            {
+                temp_buf &= 0B10111111;
+
+                if (_bus->IIC_WriteC8D8(_device_address, LSM6DSL_RD_WR_CTRL4_C, temp_buf) == true)
+                {
+                    return true;
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
+        break;
     case Arduino_IIC_IMU::Device::IMU_FIFO_POWER_MODE:
         switch (state)
         {
-        case Arduino_IIC_IMU::Device_Mode::IMU_DEVICE_OFF:
+        case Arduino_IIC_IMU::Device_Mode::IMU_DEVICE_OFF_POWER:
             if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_FIFO_CTRL5, &temp_buf) == true)
             {
                 temp_buf &= 0B10000111;
@@ -505,6 +536,62 @@ bool Arduino_LSM6DSL::IIC_Write_Device_State(uint32_t device, uint8_t state)
         default:
             break;
         }
+        break;
+    case Arduino_IIC_IMU::Device::IMU_PEDOMETER_MODE:
+        switch (state)
+        {
+        case Arduino_IIC_IMU::Device_State::IMU_DEVICE_ON:
+            if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, &temp_buf) == true)
+            {
+                temp_buf &= 0B11101011;
+                temp_buf = temp_buf | (0B00000101 << 2);
+
+                if (_bus->IIC_WriteC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, temp_buf) == true)
+                {
+                    return true;
+                }
+            }
+            break;
+        case Arduino_IIC_IMU::Device_State::IMU_DEVICE_OFF:
+            if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, &temp_buf) == true)
+            {
+                temp_buf &= 0B11101011;
+
+                if (_bus->IIC_WriteC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, temp_buf) == true)
+                {
+                    return true;
+                }
+            }
+            break;
+
+        default:
+            break;
+        }
+        break;
+    case Arduino_IIC_IMU::Device::IMU_PEDOMETER_RESET: // 0 清0复位
+        switch (state)
+        {
+        case Arduino_IIC_IMU::Device_State::IMU_DEVICE_ON:
+            if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, &temp_buf) == true)
+            {
+                temp_buf &= 0B11111101; // 清空
+                temp_buf = temp_buf | (0B00000001 << 1);
+                if (_bus->IIC_WriteC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, temp_buf) == true) // 置1复位步数器的步数数据
+                {
+                    temp_buf &= 0B11111101;
+                    if (_bus->IIC_WriteC8D8(_device_address, LSM6DSL_RD_WR_CTRL10_C, temp_buf) == true) // 还原计数器的状态
+                    {
+                        return true;
+                    }
+                }
+            }
+            break;
+        case Arduino_IIC_IMU::Device_State::IMU_DEVICE_OFF:
+            break;
+        default:
+            break;
+        }
+
         break;
 
     default:
@@ -1180,9 +1267,9 @@ bool Arduino_LSM6DSL::IIC_Write_Device_Value(uint32_t device, uint32_t value)
             // Serial.printf("Gyroscope Z Variance: %f\n", temp_z_variance);
 
             // X-axis Y-axis Z-axis
-            if (temp_x_variance > 100 ||
-                temp_y_variance > 100 ||
-                temp_z_variance > 100) // 一般情况下设备静止时的标准方差小于100
+            if (temp_x_variance > 200 ||
+                temp_y_variance > 200 ||
+                temp_z_variance > 200) // 一般情况下设备静止时的标准方差小于200
             {
                 return false;
             }
@@ -1279,6 +1366,7 @@ bool Arduino_LSM6DSL::IIC_Write_Device_Value(uint32_t device, uint32_t value)
             }
         }
         break;
+
     default:
         break;
     }
@@ -1307,11 +1395,10 @@ double Arduino_LSM6DSL::IIC_Read_Device_Value(uint32_t information)
                         switch (temp_buf_3 >> 7) // 判断正负号
                         {
                         case 0:
-                            return double(25 + ((temp_buf_3 << 8) | temp_buf_2) / 256); // 灵敏度为+256 LSB/°C
+                            return double(25 + ((((int16_t)temp_buf_3 << 8) | (int16_t)temp_buf_2) / 256.0)); // 灵敏度为+256 LSB/°C
                             break;
                         case 1:
-                            temp_buf_3 &= 0B01111111;                                   // 清除负号
-                            return double(25 - ((temp_buf_3 << 8) | temp_buf_2) / 256); // 灵敏度为+256 LSB/°C
+                            return double(25 + ((-1) * ((~(int16_t)(((int16_t)temp_buf_3 << 8) | (int16_t)temp_buf_2)) + 1) / 256.0)); // 灵敏度为+256 LSB/°C
                             break;
 
                         default:
@@ -1968,6 +2055,15 @@ double Arduino_LSM6DSL::IIC_Read_Device_Value(uint32_t information)
         if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_FIFO_DATA_OUT_L, &temp_buf) == true)
         {
             if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_FIFO_DATA_OUT_H, &temp_buf_2) == true)
+            {
+                return ((int16_t)temp_buf_2 << 8) | (int16_t)temp_buf;
+            }
+        }
+        break;
+    case Arduino_IIC_IMU::Value_Information::IMU_PEDOMETER_VALUE: // 0-65535 步
+        if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_STEP_COUNTER_L, &temp_buf) == true)
+        {
+            if (_bus->IIC_ReadC8D8(_device_address, LSM6DSL_RD_STEP_COUNTER_H, &temp_buf_2) == true)
             {
                 return ((int16_t)temp_buf_2 << 8) | (int16_t)temp_buf;
             }

@@ -3,8 +3,8 @@
  * @version: V1.0.0
  * @Author: Xk_w
  * @Date: 2023-11-25 09:14:02
- * @LastEditors: Xk_w
- * @LastEditTime: 2024-02-28 15:01:12
+ * @LastEditors: LILYGO_L
+ * @LastEditTime: 2024-03-12 18:16:05
  * @License: GPL 3.0
  */
 #include "Arduino_FT3x68.h"
@@ -75,6 +75,12 @@ bool Arduino_FT3x68::IIC_Write_Device_State(uint32_t device, uint8_t state)
             break;
         case Arduino_IIC_Touch::Device_Mode::TOUCH_POWER_MONITOR:
             temp_buf = 0B00000001;
+
+            // _bus->IIC_WriteC8D8(_device_address, 0x86, 0x01);
+            // delay(20);
+            // _bus->IIC_WriteC8D8(_device_address, 0x87, 0x1e);
+            // delay(20);
+            // _bus->IIC_WriteC8D8(_device_address, 0xa5, 0x01);
             if (_bus->IIC_WriteC8D8(_device_address, FT3x68_RD_WR_DEVICE_POWER_MODE, temp_buf) == true)
             {
                 return true;
@@ -143,11 +149,44 @@ bool Arduino_FT3x68::IIC_Write_Device_State(uint32_t device, uint8_t state)
             break;
         }
         break;
+    case Arduino_IIC_Touch::Device::TOUCH_AUTOMATICALLY_MONITOR_MODE:
+        switch (state)
+        {
+        case Arduino_IIC_Touch::Device_State::TOUCH_DEVICE_ON:
+            temp_buf = 0B00000001;
+            if (_bus->IIC_WriteC8D8(_device_address, FT3x68_RD_WR_DEVICE_AUTOMATICALLY_MONITOR_MODE, temp_buf) == true)
+            {
+                return true;
+            }
+            break;
+        case Arduino_IIC_Touch::Device_State::TOUCH_DEVICE_OFF:
+            temp_buf = 0B00000000;
+            if (_bus->IIC_WriteC8D8(_device_address, FT3x68_RD_WR_DEVICE_AUTOMATICALLY_MONITOR_MODE, temp_buf) == true)
+            {
+                return true;
+            }
+            break;
+
+        default:
+            break;
+        }
+        break;
 
     default:
         break;
     }
     return false;
+}
+
+bool Arduino_FT3x68::IIC_Write_Device_Value(uint32_t device, uint32_t value)
+{
+    if (device != Arduino_IIC_Power::Device_Value::POWER_DEVICE_CHARGING_TARGET_VOLTAGE_LIMIT)
+    {
+        return false;
+    }
+
+    // 0-100 秒
+    return value >= 0 && value <= 100 && _bus->IIC_WriteC8D8(_device_address, FT3x68_RD_WR_DEVICE_AUTOMATICALLY_MONITOR_MODE_TIME, value);
 }
 
 String Arduino_FT3x68::IIC_Read_Device_State(uint32_t information)

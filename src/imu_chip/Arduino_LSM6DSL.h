@@ -6,16 +6,23 @@
  *
  *      enum Device_State
  *      {
+ *          IMU_DEVICE_ON,  // 设备功能关
+ *          IMU_DEVICE_OFF, // 设备功能开
  *      };
  *      enum Device
  *      {
  *          IMU_ACCELERATION_POWER_MODE, // 加速度传感器电源功耗模式
  *          IMU_GYROSCOPE_POWER_MODE,    // 陀螺仪传感器电源功耗模式
+ * 
+ *          IMU_GYROSCOPE_SLEEP_MODE // 陀螺仪传感器睡眠模式
  *
  *          IMU_FIFO_POWER_MODE, // 传感器FIFO的电源功耗模式
  *          IMU_FIFO_WORK_MODE,  // 传感器FIFO的工作模式
  *
  *          IMU_FIFO_DATA_TYPE, // 传感器FIFO选择需要获取的数据类型
+ *
+ *          IMU_PEDOMETER_MODE, // 传感器计步器模式
+ *          IMU_PEDOMETER_RESET, // 复位传感器计步器的值
  *      };
  *      enum Device_Mode
  *      {
@@ -75,6 +82,8 @@
  *
  *          IMU_FIFO_DATA_PATTERN, // 用于判断下次读取时读取哪个传感器哪个轴上的数据
  *          IMU_FIFO_DATA,         // FIFO 上的数据 原始值
+ *
+ *          IMU_PEDOMETER_VALUE, // 传感器计步器的值
  *      };
  *
  *      注意事项：
@@ -102,8 +111,10 @@
 #define LSM6DSL_RD_WR_CTRL1_XL 0x10      // Linear acceleration sensor control register 1
 #define LSM6DSL_RD_WR_CTRL2_G 0x11       // Angular rate sensor control register 2
 #define LSM6DSL_RD_WR_CTRL3_C 0x12       // Control register 3
+#define LSM6DSL_RD_WR_CTRL4_C 0x13       // Control register 4
 #define LSM6DSL_RD_WR_CTRL6_C 0x15       // Angular rate sensor control register 6
 #define LSM6DSL_RD_WR_CTRL7_G 0x16       // Angular rate sensor control register 7
+#define LSM6DSL_RD_WR_CTRL10_C 0x19      // Control register 10
 #define LSM6DSL_RD_WR_MASTER_CONFIG 0x1A // Master configuration register
 #define LSM6DSL_RD_STATUS_REG 0x1E       // The STATUS_REG register is read by the SPI/I2C interface
 #define LSM6DSL_RD_OUT_TEMP_L 0x20       // Temperature output data registers
@@ -124,6 +135,8 @@
 #define LSM6DSL_RD_FIFO_STATUS4 0x3D     // FIFO status control register
 #define LSM6DSL_RD_FIFO_DATA_OUT_L 0x3E  // FIFO data output register
 #define LSM6DSL_RD_FIFO_DATA_OUT_H 0x3F  // FIFO data output register
+#define LSM6DSL_RD_STEP_COUNTER_L 0x4B   // Step counter output register
+#define LSM6DSL_RD_STEP_COUNTER_H 0x4C   // Step counter output register
 
 #define LSM6DSL_RD_DEVICE_ID 0x0F // Device ID Register
 
